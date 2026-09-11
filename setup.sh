@@ -19,5 +19,9 @@ if [ ! -f "$TARGET/model.safetensors" ]; then
   "$REPO/venv/bin/python" -c "from huggingface_hub import snapshot_download; snapshot_download('$HF_ID', local_dir='$TARGET')"
 fi
 command -v ollama >/dev/null || { echo "SETUP: install ollama: brew install ollama"; exit 1; }
+if ! curl -sf --max-time 2 http://localhost:11434/api/tags >/dev/null 2>&1; then
+  ollama serve >/tmp/mlx-testing-ollama.log 2>&1 &
+  for _ in $(seq 1 30); do curl -sf --max-time 2 http://localhost:11434/api/tags >/dev/null 2>&1 && break; sleep 1; done
+fi
 ollama list 2>/dev/null | grep -q "qwen2.5" || ollama pull "$OLLAMA_MODEL"
 echo "SETUP: OK ($TARGET)"
