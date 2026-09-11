@@ -11,7 +11,7 @@ CHECK_ONLY=0
 TARGET="$REPO/models/$MODEL_SUB"
 
 if [ ! -f "$TARGET/model.safetensors" ]; then
-  [ "$CHECK_ONLY" = 1 ] && { echo "SETUP: weights missing at $TARGET (run setup.sh to fetch)"; exit 0; }
+  [ "$CHECK_ONLY" = 1 ] && { echo "SETUP: weights missing at $TARGET"; exit 1; }
   "$REPO/venv/bin/python" -c "from huggingface_hub import snapshot_download; snapshot_download('$HF_ID', local_dir='$TARGET')"
 fi
 command -v ollama >/dev/null || { echo "SETUP: install ollama: brew install ollama"; exit 1; }

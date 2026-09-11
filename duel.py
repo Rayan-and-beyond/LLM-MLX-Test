@@ -134,7 +134,11 @@ def main():
     print(BANNER, flush=True)
     print("Loading the model...", flush=True)
     print("(First run loads ~300MB into memory - give it a minute.)", flush=True)
-    model, tokenizer = load(MLX_MODEL_DIR)
+    try:
+        model, tokenizer = load(MLX_MODEL_DIR)
+    except (FileNotFoundError, OSError):
+        print("Model weights not found. Run ./setup.sh once to download them.")
+        return 1
     print("Warming up the engines...", flush=True)
     generate(model, tokenizer, prompt="hi", max_tokens=1, verbose=False)
     sampler = make_sampler(temp=TEMPERATURE, top_p=TOP_P)
