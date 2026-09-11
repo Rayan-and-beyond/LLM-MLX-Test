@@ -1,9 +1,18 @@
 # MLX-Testing — Apple Silicon LLM Duel: MLX vs Ollama
 
-One command. Same prompt. Same limits. Head-to-head tokens/sec for
-`mlx-lm` (Apple Silicon native) vs Ollama (GGUF) on your Mac.
+## Purpose
 
-Apple Silicon only. No background daemons left running.
+Two ways to run the same open-weight LLM locally on a Mac — Apple's
+[MLX](https://github.com/ml-explore/mlx) framework (`mlx-lm`, built for Apple
+Silicon) versus [Ollama](https://ollama.com) (GGUF via llama.cpp) — but which
+is actually faster on your chip?
+
+This repo answers that with a fair fight: one command feeds **your prompt**
+to **both** runners with **identical limits** (300 tokens, temperature 0.7,
+top-p 0.9, Qwen2.5-0.5B-Instruct) and prints a head-to-head table of wall time,
+tokens generated, and tokens/sec. MLX gets a one-token warmup first so cold
+load doesn't skew the numbers; inference itself runs fully in memory, so the
+comparison measures the engines, not your disk.
 
 ## Prerequisites
 
