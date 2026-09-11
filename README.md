@@ -27,6 +27,17 @@ Speed (tok/s)           20.0       40.0
 
 Bigger speed number = faster. That's it.
 
+```mermaid
+flowchart LR
+    A[You type a prompt] --> B[Ollama answers]
+    B --> C[MLX answers]
+    C --> D[Scoreboard]
+    D --> E{Again?}
+    E -->|Enter| A
+    E -->|Q| F[Quit]
+    E -->|X| G[Quit + delete downloads]
+```
+
 ---
 
 ## What you need
