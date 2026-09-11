@@ -1,5 +1,5 @@
 """MLX-Testing -- Apple Silicon duel: MLX vs Ollama (Qwen2.5-0.5B)."""
-import argparse, json, time
+import json, time
 
 import requests
 from mlx_lm import load, generate, stream_generate
@@ -80,20 +80,7 @@ def run_mlx(model, tokenizer, sampler, prompt):
             "speed": n / elapsed if elapsed else 0.0}
 
 
-def self_test():
-    print(BANNER)
-    print(format_results({"time": 5.0, "tokens": 100, "speed": 20.0},
-                         {"time": 2.5, "tokens": 100, "speed": 40.0}))
-    print("ENTER another - Q quit - X quit+delete")
-    print(GOODBYES[0])
-
-
 def main():
-    ap = argparse.ArgumentParser(description="MLX-Testing Apple Silicon duel")
-    ap.add_argument("--self-test", action="store_true")
-    args = ap.parse_args()
-    if args.self_test:
-        return self_test()
     print(BANNER)
     print("Warming up MLX...")
     model, tokenizer = load(MLX_MODEL_DIR)

@@ -68,10 +68,16 @@ after you leave.
 
 ---
 
-## Try it without downloading anything
+## The models
 
-```bash
-MLX-Testing --self-test
-```
+Both sides run the same small model — **Qwen2.5-0.5B-Instruct** — just in
+two different formats:
 
-Shows you what a duel looks like, using fake numbers. No models needed.
+| Side   | Format                        | Where it lives              | Size   |
+|--------|-------------------------------|-----------------------------|--------|
+| MLX    | Apple MLX weights (4-bit)     | `./models/` in this folder  | ~300MB |
+| Ollama | GGUF (`qwen2.5:0.5b`)         | Ollama's own storage        | ~400MB |
+
+`./setup.sh` fetches whatever is missing on the first run, so you don't
+have to hunt down download links. Small on purpose: big enough for a real
+speed race, small enough to fit anywhere.
