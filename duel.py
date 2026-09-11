@@ -7,7 +7,7 @@ from mlx_lm.sample_utils import make_sampler
 
 BANNER = """\
 *** MLX-Testing -- Apple Silicon Duel: MLX vs Ollama (Qwen2.5-0.5B) ***
-Same prompt, same limits, head-to-head tok/s. Ollama auto-starts/kills.
+Same prompt. Same model. Two engines. One winner.
 """
 
 PROMPT = "Write 100 separate, different words describing Emma Watson."
@@ -82,13 +82,15 @@ def run_mlx(model, tokenizer, sampler, prompt):
 
 def main():
     print(BANNER)
-    print("Warming up MLX...")
+    print("Warming up the engines...")
     model, tokenizer = load(MLX_MODEL_DIR)
     generate(model, tokenizer, prompt="hi", max_tokens=1, verbose=False)
     sampler = make_sampler(temp=TEMPERATURE, top_p=TOP_P)
-    print("MLX ready. Ollama is managed by the launcher.\n")
+    print("Ready. Let's duel.\n")
     while True:
-        prompt = input("Enter prompt > ").strip()
+        print()
+        prompt = input("Enter prompt > ".center(60)).strip()
+        print()
         if not prompt:
             print("Empty prompt - try again.")
             continue
@@ -98,7 +100,14 @@ def main():
         m = run_mlx(model, tokenizer, sampler, prompt)
         print(format_results(o, m))
         while True:
-            key = parse_quit_key(input("ENTER another - Q quit - X quit+delete > "))
+            print()
+            print("[ENTER] Another round")
+            print()
+            print("[Q] Quit")
+            print()
+            print("[X] Quit + delete downloads")
+            print()
+            key = parse_quit_key(input("> "))
             if key == "again":
                 break
             if key == "quit":
