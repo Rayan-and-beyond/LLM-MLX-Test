@@ -1,7 +1,6 @@
 # Personal / machine-local — NEVER commit, not even in history
 venv/
 models/
-config.local.json
 *.log
 
 # Python

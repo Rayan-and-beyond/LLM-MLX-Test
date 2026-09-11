@@ -1,5 +1,5 @@
 """MLX-Testing -- Apple Silicon duel: MLX vs Ollama (Qwen2.5-0.5B)."""
-import json, time
+import json, os, time
 
 import requests
 from mlx_lm import load, generate, stream_generate
@@ -15,7 +15,8 @@ MAX_TOKENS = 300
 TEMPERATURE = 0.7
 TOP_P = 0.9
 OLLAMA_MODEL = "qwen2.5:0.5b"
-MLX_MODEL_DIR = "./models/qwen2.5-mlx-instruct"
+MLX_MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "models", "qwen2.5-mlx-instruct")
 
 GOODBYES = [
     "Goodbye! Go touch grass - your Mac did the heavy lifting.",
@@ -81,9 +82,11 @@ def run_mlx(model, tokenizer, sampler, prompt):
 
 
 def main():
-    print(BANNER)
-    print("Warming up the engines...")
+    print(BANNER, flush=True)
+    print("Loading the model...", flush=True)
+    print("(First run loads ~300MB into memory - give it a minute.)", flush=True)
     model, tokenizer = load(MLX_MODEL_DIR)
+    print("Warming up the engines...", flush=True)
     generate(model, tokenizer, prompt="hi", max_tokens=1, verbose=False)
     sampler = make_sampler(temp=TEMPERATURE, top_p=TOP_P)
     print("Ready. Let's duel.\n")

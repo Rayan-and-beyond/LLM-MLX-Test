@@ -2,7 +2,6 @@
 # MLX-Testing global launcher.
 set -euo pipefail
 REPO="$HOME/Documents/LLM-MLX-Test"
-[ -f "$REPO/config.local.json" ] && REPO="$(python3 -c "import json;print(json.load(open('$HOME/Documents/LLM-MLX-Test/config.local.json')).get('repo_dir','$HOME/Documents/LLM-MLX-Test'))" 2>/dev/null || echo "$HOME/Documents/LLM-MLX-Test")" || true
 export PATH="$HOME/.local/bin:$PATH"
 bash "$REPO/setup.sh" --check-only >/dev/null || bash "$REPO/setup.sh"
 pkill -f "ollama serve" >/dev/null 2>&1 || true

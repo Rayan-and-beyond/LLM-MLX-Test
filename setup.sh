@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MLX-Testing ensure script. Run by the USER (Drive needs their session).
+# MLX-Testing ensure script. Fetches anything missing, then reports OK.
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")" && pwd)"
 HF_ID="mlx-community/Qwen2.5-0.5B-Instruct-4bit"
@@ -8,11 +8,7 @@ OLLAMA_MODEL="qwen2.5:0.5b"
 CHECK_ONLY=0
 [ "${1:-}" = "--check-only" ] && CHECK_ONLY=1
 
-DRIVE_DIR=""
-[ -f "$REPO/config.local.json" ] && DRIVE_DIR="$("$REPO/venv/bin/python" -c "import json;print(json.load(open('$REPO/config.local.json')).get('drive_models_dir',''))" 2>/dev/null || true)" || true
-TARGET="${MLX_MODEL_DIR:-${DRIVE_DIR:-$REPO/models}/$MODEL_SUB}"
-[ -d "$REPO/models" ] && [ ! -L "$REPO/models" ] && [ -n "$DRIVE_DIR" ] && [ "$CHECK_ONLY" = 0 ] && mkdir -p "$DRIVE_DIR" && cp -r "$REPO/models/." "$DRIVE_DIR/" && rm -rf "$REPO/models" || true
-[ -n "$DRIVE_DIR" ] && [ ! -e "$REPO/models" ] && [ "$CHECK_ONLY" = 0 ] && mkdir -p "$DRIVE_DIR" && ln -s "$DRIVE_DIR" "$REPO/models" || true
+TARGET="$REPO/models/$MODEL_SUB"
 
 if [ ! -f "$TARGET/model.safetensors" ]; then
   [ "$CHECK_ONLY" = 1 ] && { echo "SETUP: weights missing at $TARGET (run setup.sh to fetch)"; exit 0; }
