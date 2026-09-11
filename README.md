@@ -32,13 +32,14 @@ same input, so the only thing being measured is the engine:
 
 ```mermaid
 flowchart TB
-    P[Your prompt] --> SAME{Same for both}
-    SAME --> O[Ollama answers<br/>GGUF model, streamed]
-    SAME --> M[MLX answers<br/>4-bit model, warmed up first]
-    O --> T1[Time + tokens counted]
-    M --> T2[Time + tokens counted]
-    T1 --> S[Scoreboard:<br/>time, tokens, tokens/sec]
-    T2 --> S
+    subgraph Setup [The rules — identical for both]
+        direction LR
+        A[Same prompt] --- B[Same model] --- C[Same limits]
+    end
+    Setup --> O[🏁 Ollama runs]
+    Setup --> M[🏁 MLX runs]
+    O --> S[📊 Scoreboard: time · tokens · tok/s]
+    M --> S
 ```
 
 ---
