@@ -31,24 +31,6 @@ Type a prompt at `Enter prompt >`. After each duel:
 killed on exit. `X` deletes only the Ollama model blob (re-pulled next run) —
 never your venv, code, or stored weights.
 
-## Google Drive (optional)
-
-Weights can live on Google Drive instead of local disk. Create
-`config.local.json` (gitignored, never committed):
-
-```json
-{"drive_models_dir": "/absolute/path/to/Drive/MLX-Testing/models"}
-```
-
-`setup.sh` downloads missing weights straight there and symlinks `./models`
-to it. Without the file, everything stays local (`./models/`).
-
-## Privacy
-
-This repo contains no absolute paths and no account identifiers. Machine-local
-things (`venv/`, `models/`, `config.local.json`, logs) are gitignored.
-```
-
 ---
 
 ## Self-test (no models needed)
