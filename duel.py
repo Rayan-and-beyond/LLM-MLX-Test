@@ -81,6 +81,13 @@ def run_mlx(model, tokenizer, sampler, prompt):
             "speed": n / elapsed if elapsed else 0.0}
 
 
+def ask(text):
+    try:
+        return input(text)
+    except (KeyboardInterrupt, EOFError):
+        return None
+
+
 def main():
     print(BANNER, flush=True)
     print("Loading the model...", flush=True)
@@ -92,7 +99,11 @@ def main():
     print("Ready. Let's duel.\n")
     while True:
         print()
-        prompt = input("Enter prompt > ".center(60)).strip()
+        raw = ask("Enter prompt > ".center(60))
+        if raw is None:
+            print("\n" + GOODBYES[0])
+            return 0
+        prompt = raw.strip()
         print()
         if not prompt:
             print("Empty prompt - try again.")
@@ -110,7 +121,11 @@ def main():
             print()
             print("[X] Quit + delete downloads")
             print()
-            key = parse_quit_key(input("> "))
+            raw = ask("> ")
+            if raw is None:
+                print("\n" + GOODBYES[0])
+                return 0
+            key = parse_quit_key(raw)
             if key == "again":
                 break
             if key == "quit":
@@ -123,4 +138,8 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        print("\n" + GOODBYES[0])
+        raise SystemExit(0)
