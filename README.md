@@ -27,15 +27,18 @@ Speed (tok/s)           20.0       40.0
 
 Bigger speed number = faster. That's it.
 
+Here's what happens inside one round — notice both sides get the exact
+same input, so the only thing being measured is the engine:
+
 ```mermaid
-flowchart LR
-    A[You type a prompt] --> B[Ollama answers]
-    B --> C[MLX answers]
-    C --> D[Scoreboard]
-    D --> E{Again?}
-    E -->|Enter| A
-    E -->|Q| F[Quit]
-    E -->|X| G[Quit + delete downloads]
+flowchart TB
+    P[Your prompt] --> SAME{Same for both}
+    SAME --> O[Ollama answers<br/>GGUF model, streamed]
+    SAME --> M[MLX answers<br/>4-bit model, warmed up first]
+    O --> T1[Time + tokens counted]
+    M --> T2[Time + tokens counted]
+    T1 --> S[Scoreboard:<br/>time, tokens, tokens/sec]
+    T2 --> S
 ```
 
 ---
