@@ -1,26 +1,47 @@
-# MLX-Testing — Apple Silicon LLM Duel: MLX vs Ollama
+# 🥊 MLX-Testing
 
-## Purpose
+**Which is faster on your Mac — MLX or Ollama? Let's find out.**
 
-Two ways to run the same open-weight LLM locally on a Mac — Apple's
-[MLX](https://github.com/ml-explore/mlx) framework (`mlx-lm`, built for Apple
-Silicon) versus [Ollama](https://ollama.com) (GGUF via llama.cpp) — but which
-is actually faster on your chip?
+There are two popular ways to run an AI model locally on Apple Silicon.
+This tool runs your prompt through **both**, side by side, and shows you
+who wins — in plain numbers.
 
-This repo answers that with a fair fight: one command feeds **your prompt**
-to **both** runners with **identical limits** (300 tokens, temperature 0.7,
-top-p 0.9, Qwen2.5-0.5B-Instruct) and prints a head-to-head table of wall time,
-tokens generated, and tokens/sec. MLX gets a one-token warmup first so cold
-load doesn't skew the numbers; inference itself runs fully in memory, so the
-comparison measures the engines, not your disk.
+---
 
-## Prerequisites
+## What it does
 
-- macOS on Apple Silicon
-- Python 3.14 with `venv`
-- [Ollama](https://ollama.com) (`brew install ollama`)
+You type one prompt. It gets answered twice:
 
-## Quickstart
+1. once by **MLX** (Apple's own AI framework, built for Mac chips)
+2. once by **Ollama** (the popular app for running models locally)
+
+Both get the exact same model and the exact same settings, so the race is
+fair. At the end you get a simple scoreboard:
+
+```text
+                     Ollama        MLX
+Time                   5.00s      2.50s
+Tokens generated         100        100
+Speed (tok/s)           20.0       40.0
+```
+
+Bigger speed number = faster. That's it.
+
+---
+
+## What you need
+
+- A Mac with an Apple Silicon chip (M1, M2, M3, …)
+- Python 3.14
+- Ollama — install it with:
+
+```bash
+brew install ollama
+```
+
+---
+
+## How to run it
 
 ```bash
 pip install -r requirements.txt
@@ -28,23 +49,29 @@ pip install -r requirements.txt
 MLX-Testing
 ```
 
-Type a prompt at `Enter prompt >`. After each duel:
+The first run downloads what it needs, then asks for your prompt:
 
-| Key     | Action                              |
-|---------|-------------------------------------|
-| `ENTER` | Another round                       |
-| `Q`     | Quit, keep downloaded data          |
-| `X`     | Quit and delete local test downloads|
+```text
+Enter prompt >
+```
 
-`Ctrl+C` quits like `Q`. The Ollama server is started on demand and always
-killed on exit. `X` deletes only the Ollama model blob (re-pulled next run) —
-never your venv, code, or stored weights.
+After each round, pick what to do next:
+
+| Key     | What happens                              |
+|---------|-------------------------------------------|
+| `ENTER` | Go again with a new prompt                |
+| `Q`     | Quit (keeps everything it downloaded)     |
+| `X`     | Quit and delete the downloaded test files |
+
+`Ctrl+C` quits just like `Q`. Nothing keeps running in the background
+after you leave.
 
 ---
 
-## Self-test (no models needed)
+## Try it without downloading anything
 
 ```bash
-venv/bin/python duel.py --self-test
 MLX-Testing --self-test
 ```
+
+Shows you what a duel looks like, using fake numbers. No models needed.
