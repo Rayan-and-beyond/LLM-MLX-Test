@@ -1,5 +1,5 @@
 """MLX-Testing -- Apple Silicon duel: MLX vs Ollama (Qwen2.5-0.5B)."""
-import json, os, time
+import json, os, sys, time
 
 import requests
 from mlx_lm import load, generate, stream_generate
@@ -81,11 +81,53 @@ def run_mlx(model, tokenizer, sampler, prompt):
             "speed": n / elapsed if elapsed else 0.0}
 
 
+QUIT_DELETE = "\x18"  # Ctrl+X
+
+
 def ask(text):
+    """Read one prompt line. Returns None on Ctrl+C/EOF (quit),
+    "DELETE" on Ctrl+X (quit + delete downloads), else the typed line."""
+    if not sys.stdin.isatty():
+        try:
+            line = input(text)
+        except (KeyboardInterrupt, EOFError):
+            return None
+        if line.strip() == QUIT_DELETE:
+            return "DELETE"
+        return line
+    import termios, tty
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    buf = []
     try:
-        return input(text)
-    except (KeyboardInterrupt, EOFError):
-        return None
+        tty.setcbreak(fd)
+        os.write(sys.stdout.fileno(), text.encode())
+        sys.stdout.flush()
+        while True:
+            ch = os.read(fd, 32).decode("utf-8", "replace")
+            if not ch:
+                return None
+            ch = ch[0]
+            if ch == "\x03":
+                raise KeyboardInterrupt
+            if ch == QUIT_DELETE:
+                os.write(sys.stdout.fileno(), b"\n")
+                return "DELETE"
+            if ch in ("\n", "\r"):
+                os.write(sys.stdout.fileno(), b"\n")
+                break
+            if ch == "\x7f":
+                if buf:
+                    buf.pop()
+                    os.write(sys.stdout.fileno(), b"\b \b")
+                continue
+            if ch < " ":
+                continue
+            buf.append(ch)
+            os.write(sys.stdout.fileno(), ch.encode())
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+    return "".join(buf)
 
 
 def main():
@@ -96,13 +138,17 @@ def main():
     print("Warming up the engines...", flush=True)
     generate(model, tokenizer, prompt="hi", max_tokens=1, verbose=False)
     sampler = make_sampler(temp=TEMPERATURE, top_p=TOP_P)
-    print("Ready. Let's duel.\n")
+    print("Ready. Let's duel.")
+    print("(Ctrl+C quits - Ctrl+X quits + deletes downloads)\n")
     while True:
         print()
-        raw = ask("Enter prompt > ".center(60))
+        raw = ask("Enter prompt > ")
         if raw is None:
             print("\n" + GOODBYES[0])
             return 0
+        if raw == "DELETE":
+            print("Deleting test downloads...")
+            return 42
         prompt = raw.strip()
         print()
         if not prompt:
@@ -113,28 +159,6 @@ def main():
         print("\n\n--- MLX ---\n")
         m = run_mlx(model, tokenizer, sampler, prompt)
         print(format_results(o, m))
-        while True:
-            print()
-            print("[ENTER] Another round")
-            print()
-            print("[Q] Quit")
-            print()
-            print("[X] Quit + delete downloads")
-            print()
-            raw = ask("> ")
-            if raw is None:
-                print("\n" + GOODBYES[0])
-                return 0
-            key = parse_quit_key(raw)
-            if key == "again":
-                break
-            if key == "quit":
-                print(GOODBYES[0])
-                return 0
-            if key == "quit_delete":
-                print("DELETE-REQUESTED")
-                return 42
-            print("Press ENTER, Q, or X.")
 
 
 if __name__ == "__main__":

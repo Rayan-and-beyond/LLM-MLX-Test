@@ -70,16 +70,15 @@ The first run downloads what it needs, then asks for your prompt:
 Enter prompt >
 ```
 
-After each round, pick what to do next:
+Right after each answer, it asks for the next prompt straight away. To
+leave at any point:
 
-| Key     | What happens                              |
-|---------|-------------------------------------------|
-| `ENTER` | Go again with a new prompt                |
-| `Q`     | Quit (keeps everything it downloaded)     |
-| `X`     | Quit and delete the downloaded test files |
+| Key      | What happens                              |
+|----------|-------------------------------------------|
+| `Ctrl+C` | Quit (keeps everything it downloaded)     |
+| `Ctrl+X` | Quit and delete the downloaded test files |
 
-`Ctrl+C` quits just like `Q`. Nothing keeps running in the background
-after you leave.
+Nothing keeps running in the background after you leave.
 
 ---
 
