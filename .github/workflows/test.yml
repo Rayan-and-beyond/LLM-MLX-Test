@@ -1,0 +1,48 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Syntax check (Python + launcher script)
+        run: |
+          python -m py_compile duel.py tests/test_duel.py
+          bash -n launcher/MLX-Testing
+      # MLX and Ollama are macOS/local-runner only and are intentionally NOT
+      # installed here. CI covers the portable core: scoring, formatting,
+      # and CLI parsing — the parts that must stay fair on every machine.
+      # duel.py imports mlx_lm at module level, so CI stubs the Apple-only
+      # dependency with no-op callables (test infrastructure only; duel.py
+      # itself is untouched and still requires real MLX on a Mac).
+      - name: Install portable deps and test runner
+        run: python -m pip install requests pytest
+      - name: Stub Apple-only mlx_lm for Linux CI
+        run: |
+          mkdir -p "$RUNNER_TEMP/stubs/mlx_lm"
+          cat > "$RUNNER_TEMP/stubs/mlx_lm/__init__.py" <<'EOF'
+          """Linux-CI stub for Apple-Silicon-only mlx_lm. Never imported on a Mac."""
+          def load(*a, **k):
+              raise RuntimeError("mlx_lm stub: real MLX requires Apple Silicon")
+          def generate(*a, **k):
+              raise RuntimeError("mlx_lm stub: real MLX requires Apple Silicon")
+          def stream_generate(*a, **k):
+              raise RuntimeError("mlx_lm stub: real MLX requires Apple Silicon")
+          EOF
+          cat > "$RUNNER_TEMP/stubs/mlx_lm/sample_utils.py" <<'EOF'
+          def make_sampler(*a, **k):
+              raise RuntimeError("mlx_lm stub: real MLX requires Apple Silicon")
+          EOF
+          echo "PYTHONPATH=$RUNNER_TEMP/stubs" >> "$GITHUB_ENV"
+      - name: Run portable tests
+        run: python -m pytest tests/ -q
